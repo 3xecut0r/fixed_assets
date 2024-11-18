@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_asset_balance_movement_report" model="ir.actions.report">
+        <field name="name">Asset Report</field>
+        <field name="model">account.asset</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fixed_assets.report_asset</field>
+        <field name="report_file">fixed_assets.report_asset</field>
+        <field name="print_report_name">'Asset report - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="account_asset.model_account_asset"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+    <template id="report_asset">
+        <t t-call="web.html_container">
+            <t t-call="fixed_assets.report_balance_movement" t-lang="lang"/>
+        </t>
+    </template>
+
+    <template id="report_balance_movement">
+        <t t-call="web.external_layout">
+            <div class="mt-5 clearfix">
+                <div class="page mb-4">
+                    <h2>
+                        <span>Asset Report</span>
+                    </h2>
+                    <div class="oe_structure"></div>
+
+                    <table class="table table-sm o_main_table table-borderless" name="asset_line_table">
+                        <thead>
+                            <tr>
+                                <th name="th_asset_model" class="text-start"><span>Asset Model</span></th>
+                                <th name="th_name" class="text-end"><span>Asset Name</span></th>
+                                <th name="th_purchase_date" t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}"><span>Purchase Date</span></th>
+                                <th name="th_depreciation_years" t-if="display_discount" t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                    <span>Depreciation Years</span>
+                                </th>
+                                <th name="th_quantity" t-attf-class="text-start {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}"><span>Quantity</span></th>
+                                <th name="th_original_value" class="text-start">
+                                    <span>Original Value</span>
+                                </th>
+                                <th name="th_accumulated_depreciation" class="text-start">
+                                    <span>Accumulated Depreciation</span>
+                                </th>
+                                <th name="th_accumulated_disposal_value" class="text-start">
+                                    <span>Accumulated Disposal Value</span>
+                                </th>
+                                <th name="th_net_book_value" class="text-end">
+                                    <span>Net Book Value</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="asset_tbody">
+                            <t t-foreach="docs" t-as="asset">
+                                <tr>
+                                    <td class="text-start"><t t-esc="asset['model_id']['name'] or 'N/A'"/></td>
+                                    <td class="text-start"><t t-esc="asset['name']"/></td>
+                                    <td class="text-start"><t t-esc="asset['acquisition_date'] or 'N/A'"/></td>
+                                    <td class="text-start"><t t-esc="asset['x_qty'] or 'N/A'"/></td>
+                                    <td class="text-start"><t t-esc="asset['original_value'] or 'N/A'"/></td>
+                                    <td class="text-start"><t t-esc="round(asset['x_accumulated_depreciation'], 2) or 'N/A'"/></td>
+                                    <td class="text-start"><t t-esc="asset['value_residual'] or 'N/A'"/></td>
+                                    <td class="text-end"><t t-esc="asset['book_value'] or 'N/A'"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
